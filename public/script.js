@@ -53,7 +53,6 @@ function renderPointCloud(pointCloudData) {
     document.getElementById('pointcloud-container').appendChild(renderer.domElement); // Append to a specific container
 
     // Create geometry and arrays to hold vertices and colors
-    const geometry = new THREE.BufferGeometry();
     const vertices = [];
     const colors = [];
 
@@ -65,32 +64,23 @@ function renderPointCloud(pointCloudData) {
 
         // Validate that x, y, z are numbers and not NaN
         if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
-            vertices.push(x, y, z);
+            vertices.push({ x, y, z });
 
             const r = color[0] / 255;
             const g = color[1] / 255;
             const b = color[2] / 255;
-            colors.push(r, g, b);
+            colors.push(new THREE.Color(r, g, b));
         }
     });
 
-    // Attach the vertices and colors to the geometry
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-    // Compute bounding sphere to avoid NaN errors
-    geometry.computeBoundingSphere();
-    if (!geometry.boundingSphere || isNaN(geometry.boundingSphere.radius)) {
-        console.error('Bounding sphere computation failed. Geometry has NaN values.');
-        return;
-    }
-
-    // Create the material for the point cloud
-    const material = new THREE.PointsMaterial({ size: 0.5, vertexColors: true });
-
-    // Create the point cloud and add it to the scene
-    const pointCloud = new THREE.Points(geometry, material);
-    scene.add(pointCloud);
+    // Create spheres for each vertex
+    vertices.forEach((vertex, index) => {
+        const sphereGeometry = new THREE.SphereGeometry(1, 16, 16); // Adjust size and detail as needed
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: colors[index] });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(vertex.x, vertex.y, vertex.z);
+        scene.add(sphere);
+    });
 
     // Set up orbit controls for the camera
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -101,8 +91,6 @@ function renderPointCloud(pointCloudData) {
     // Define the animation loop to render the scene
     const animate = function () {
         requestAnimationFrame(animate);
-        pointCloud.rotation.x += 0.001;
-        pointCloud.rotation.y += 0.001;
         controls.update();
         renderer.render(scene, camera);
     };
