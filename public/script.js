@@ -52,7 +52,7 @@ function renderPointCloud(pointCloudData) {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('pointcloud-container').appendChild(renderer.domElement); // Append to a specific container
 
-    // Create geometry and arrays to hold vertices and colors
+    // Create arrays to hold vertices and colors
     const vertices = [];
     const colors = [];
 
@@ -73,13 +73,13 @@ function renderPointCloud(pointCloudData) {
         }
     });
 
-    // Create spheres for each vertex
+    // Create circles for each vertex
     vertices.forEach((vertex, index) => {
-        const sphereGeometry = new THREE.SphereGeometry(1, 16, 16); // Adjust size and detail as needed
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: colors[index] });
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.set(vertex.x, vertex.y, vertex.z);
-        scene.add(sphere);
+        const circleGeometry = new THREE.CircleGeometry(1, 32); // Adjust size and detail as needed
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: colors[index] });
+        const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+        circle.position.set(vertex.x, vertex.y, vertex.z);
+        scene.add(circle);
     });
 
     // Set up orbit controls for the camera
